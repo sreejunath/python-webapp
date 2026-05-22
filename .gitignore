@@ -1,14 +1,17 @@
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 
 # Virtual Environment
 venv/
 env/
+.venv/
 
 # Django
 db.sqlite3
 media/
+staticfiles/
 
 # VS Code
 .vscode/
@@ -18,6 +21,13 @@ media/
 
 # Logs
 *.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Pytest
+.pytest_cache/
 
 # Migrations (optional)
 # */migrations/*.py
