@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Courses — {{ college.college_name }}{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <h1>Our Courses</h1>
+    <p>Choose the program that shapes your teaching career</p>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb justify-content-center mt-2">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active">Courses</li>
+    </ol></nav>
+  </div>
+</div>
+<section class="section-pad bg-cream">
+  <div class="container">
+    {% if courses %}
+    <div class="row g-4">
+      {% for course in courses %}
+      <div class="col-lg-4 col-md-6">
+        <div class="card-course">
+          <div class="card-course-img">
+            {% if course.image %}<img src="{{ course.image.url }}" alt="{{ course.title }}">
+            {% else %}<i class="fas fa-graduation-cap course-icon"></i>{% endif %}
+            <span class="course-badge">{{ course.duration }}</span>
+          </div>
+          <div class="card-course-body">
+            <h4>{{ course.short_name }} — {{ course.title }}</h4>
+            <p>{{ course.description|truncatewords:25 }}</p>
+            <div class="course-meta">
+              <span><i class="fas fa-chair"></i>{{ course.seats }} Seats</span>
+              <span><i class="fas fa-rupee-sign"></i>{{ course.fee_per_year }}/yr</span>
+              <span><i class="fas fa-clock"></i>{{ course.duration }}</span>
+            </div>
+            <a href="{% url 'course_detail' course.pk %}" class="btn-course">View Details <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5"><i class="fas fa-book" style="font-size:48px;color:var(--border);"></i><p class="mt-3 text-muted">No courses available yet.</p></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

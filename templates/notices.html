@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Notices — {{ college.college_name }}{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <h1>Notice Board</h1>
+    <p>Stay updated with the latest announcements</p>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb justify-content-center mt-2">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active">Notices</li>
+    </ol></nav>
+  </div>
+</div>
+<section class="section-pad bg-cream">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          <a href="{% url 'notices' %}" class="btn {% if not category %}btn-primary-c{% else %}btn-outline-c{% endif %} btn-sm">All</a>
+          {% for val, label in categories %}
+          <a href="?category={{ val }}" class="btn {% if category == val %}btn-primary-c{% else %}btn-outline-c{% endif %} btn-sm">{{ label }}</a>
+          {% endfor %}
+        </div>
+        {% if notices %}
+          {% for notice in notices %}
+          <div class="notice-item {% if notice.is_urgent %}urgent{% endif %}">
+            <div class="notice-icon">
+              <i class="fas {% if notice.category == 'exam' %}fa-file-alt{% elif notice.category == 'event' %}fa-calendar{% elif notice.category == 'result' %}fa-trophy{% elif notice.category == 'admission' %}fa-user-graduate{% else %}fa-bell{% endif %}"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="notice-title">
+                {{ notice.title }}
+                {% if notice.is_urgent %}<span class="badge-urgent ms-2">URGENT</span>{% endif %}
+              </div>
+              <div class="notice-meta">
+                <span><i class="fas fa-calendar-alt me-1"></i>{{ notice.published_date|date:"d M Y" }}</span>
+                <span class="badge-cat">{{ notice.get_category_display }}</span>
+              </div>
+              <p style="font-size:14px;color:var(--text-mid);margin:8px 0 0;line-height:1.6;">{{ notice.content }}</p>
+              {% if notice.attachment %}<a href="{{ notice.attachment.url }}" target="_blank" class="btn-course mt-2" style="display:inline-flex;"><i class="fas fa-paperclip me-1"></i>Download Attachment</a>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-5"><i class="fas fa-bell-slash" style="font-size:48px;color:var(--border);"></i><p class="mt-3 text-muted">No notices found.</p></div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

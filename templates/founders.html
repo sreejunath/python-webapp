@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Leadership — {{ college.college_name }}{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <h1>Our Leadership</h1>
+    <p>Vision and wisdom from our founding members</p>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb justify-content-center mt-2">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active">Leadership</li>
+    </ol></nav>
+  </div>
+</div>
+<section class="section-pad bg-cream">
+  <div class="container">
+    {% if founders %}
+    <div class="row g-5">
+      {% for founder in founders %}
+      <div class="col-lg-10 offset-lg-1">
+        <div style="background:#fff;border-radius:24px;box-shadow:var(--shadow);overflow:hidden;">
+          <div class="row g-0">
+            <div class="col-md-4" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:48px 32px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              {% if founder.photo %}<img src="{{ founder.photo.url }}" alt="{{ founder.name }}" style="width:140px;height:140px;border-radius:50%;object-fit:cover;border:5px solid rgba(255,255,255,0.25);margin-bottom:20px;">
+              {% else %}<div style="width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.15);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:52px;color:rgba(255,255,255,0.4);"><i class="fas fa-user-tie"></i></div>{% endif %}
+              <h4 style="color:#fff;font-size:22px;margin-bottom:8px;">{{ founder.name }}</h4>
+              <span style="background:rgba(255,255,255,0.15);color:var(--accent-light);font-size:12px;font-weight:600;padding:5px 16px;border-radius:20px;letter-spacing:1px;">{{ founder.get_role_display }}</span>
+              {% if founder.signature %}<img src="{{ founder.signature.url }}" alt="Signature" style="max-width:120px;margin-top:20px;filter:brightness(10);opacity:0.6;">{% endif %}
+            </div>
+            <div class="col-md-8" style="padding:48px 40px;display:flex;align-items:center;">
+              <div>
+                <div style="font-size:72px;color:var(--accent);font-family:'Playfair Display',serif;line-height:1;opacity:0.25;margin-bottom:-20px;">"</div>
+                <p style="color:var(--text-mid);font-size:16px;line-height:2;font-style:italic;">{{ founder.message }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5"><i class="fas fa-quote-left" style="font-size:48px;color:var(--border);"></i><p class="mt-3 text-muted">Leadership messages coming soon.</p></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

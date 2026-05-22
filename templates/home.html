@@ -1,0 +1,673 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ college.college_name }} — Home{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Ticker ── */
+.ticker-wrap {
+  background: var(--accent);
+  padding: 9px 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 99;
+}
+.ticker-label {
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 18px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  position: absolute; left: 0; top: 0; bottom: 0;
+  z-index: 2;
+  min-width: 130px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.ticker-track {
+  display: flex;
+  animation: ticker-scroll 28s linear infinite;
+  padding-left: 150px;
+  width: max-content;
+}
+.ticker-track:hover { animation-play-state: paused; }
+.ticker-item {
+  white-space: nowrap;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 40px;
+  display: flex; align-items: center; gap: 8px;
+}
+.ticker-dot { width:6px;height:6px;background:rgba(255,255,255,.5);border-radius:50%;display:inline-block; }
+.ticker-urgent-dot { width:8px;height:8px;background:#fff;border-radius:50%;display:inline-block;animation:pulse-dot 1s infinite; }
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+@keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── Notice alert bell on navbar ── */
+.notice-alert-btn {
+  position: fixed;
+  right: 24px; bottom: 100px;
+  width: 52px; height: 52px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 20px;
+  box-shadow: 0 6px 20px rgba(26,58,92,0.35);
+  cursor: pointer; z-index: 999;
+  transition: all .3s;
+  text-decoration: none;
+}
+.notice-alert-btn:hover { background: var(--primary-light); transform: scale(1.1); color: #fff; }
+.notice-badge {
+  position: absolute; top: -4px; right: -4px;
+  background: var(--accent);
+  color: #fff; font-size: 10px; font-weight: 700;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  animation: badge-pop .4s ease;
+  border: 2px solid #fff;
+}
+@keyframes badge-pop{0%{transform:scale(0)}80%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+/* ── Event Popup ── */
+.event-popup-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fade-in .3s ease;
+}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+.event-popup {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%; max-width: 460px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  animation: popup-rise .4s ease;
+}
+@keyframes popup-rise{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.event-popup-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  padding: 20px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.event-popup-header h5 { color: #fff; margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.popup-close {
+  background: rgba(255,255,255,.15); border: none;
+  color: #fff; width: 30px; height: 30px;
+  border-radius: 50%; cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.popup-close:hover { background: rgba(255,255,255,.3); }
+.event-popup-body { padding: 0; max-height: 380px; overflow-y: auto; }
+.event-item {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.event-item:last-child { border-bottom: none; }
+.event-icon {
+  width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.event-icon.urgent { background: rgba(200,148,26,0.12); color: var(--accent); }
+.event-icon.event  { background: rgba(26,58,92,0.08);  color: var(--primary-light); }
+.event-title { font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 4px; }
+.event-meta  { font-size: 12px; color: var(--text-light); }
+.event-content { font-size: 13px; color: var(--text-mid); margin-top: 4px; line-height: 1.5; }
+.event-popup-footer {
+  padding: 14px 24px;
+  background: var(--cream);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+.btn-popup-view {
+  background: var(--primary); color: #fff;
+  padding: 9px 20px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+  transition: all .2s;
+}
+.btn-popup-view:hover { background: var(--primary-light); }
+.btn-popup-dismiss {
+  background: transparent; color: var(--text-mid);
+  padding: 9px 16px; border-radius: 20px;
+  font-size: 13px; border: 1px solid var(--border); cursor: pointer;
+  transition: all .2s;
+}
+.btn-popup-dismiss:hover { background: var(--border); }
+
+/* ── Hero ── */
+.hero {
+  min-height: 92vh;
+  position: relative;
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 60%, #1e5fa8 100%);
+}
+.hero-bg-img {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  opacity: 0.18;
+}
+.hero-bg-pattern {
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-content { position: relative; z-index: 2; }
+
+/* ── Auto-swapping image slideshow ── */
+.hero-slideshow {
+  position: relative;
+  width: 100%; height: 440px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+.slide {
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity .8s ease-in-out;
+}
+.slide.active { opacity: 1; }
+.slide img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.slide-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(26,58,92,0.7) 0%, transparent 60%);
+}
+.slide-caption {
+  position: absolute; bottom: 20px; left: 20px; right: 20px;
+  color: #fff;
+}
+.slide-caption span {
+  font-size: 13px; font-weight: 600;
+  background: var(--accent);
+  padding: 3px 12px; border-radius: 20px;
+  display: inline-block; margin-bottom: 6px;
+}
+.slide-caption p { font-size: 15px; margin: 0; }
+.slide-dots {
+  position: absolute; bottom: 16px; right: 16px;
+  display: flex; gap: 6px; z-index: 5;
+}
+.slide-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,.4); cursor: pointer; transition: all .3s;
+  border: none;
+}
+.slide-dot.active { background: #fff; transform: scale(1.3); }
+.slide-arrows {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 100%; display: flex; justify-content: space-between;
+  padding: 0 12px; z-index: 5; pointer-events: none;
+}
+.slide-arrow {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,.2); border: none;
+  color: #fff; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .3s; pointer-events: all;
+  backdrop-filter: blur(6px);
+}
+.slide-arrow:hover { background: rgba(255,255,255,.35); }
+
+/* fallback icon grid */
+.hero-icon-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; height: 440px;
+}
+.hero-icon-card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px; color: #fff;
+}
+.hero-icon-card i { font-size: 32px; color: var(--accent-light); }
+.hero-icon-card span { font-size: 13px; color: rgba(255,255,255,.7); }
+.hero-icon-card:first-child { grid-row: 1 / 3; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- LIVE TICKER -->
+{% if notices %}
+<div class="ticker-wrap">
+  <div class="ticker-label"><i class="fas fa-bell"></i> NOTICES</div>
+  <div class="ticker-track">
+    {% for notice in notices %}
+    <a href="{% url 'notices' %}" class="ticker-item" style="text-decoration:none;">
+      {% if notice.is_urgent %}<span class="ticker-urgent-dot"></span>{% else %}<span class="ticker-dot"></span>{% endif %}
+      {{ notice.title }}
+      <span style="color:rgba(255,255,255,.55);font-size:11px;">— {{ notice.published_date|date:"d M" }}</span>
+    </a>
+    {% endfor %}
+    {% for notice in notices %}
+    <a href="{% url 'notices' %}" class="ticker-item" style="text-decoration:none;">
+      {% if notice.is_urgent %}<span class="ticker-urgent-dot"></span>{% else %}<span class="ticker-dot"></span>{% endif %}
+      {{ notice.title }}
+      <span style="color:rgba(255,255,255,.55);font-size:11px;">— {{ notice.published_date|date:"d M" }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    {% if college.hero_image %}
+    <div class="hero-bg-img" style="background-image:url('{{ college.hero_image.url }}');"></div>
+    {% endif %}
+    <div class="hero-bg-pattern"></div>
+  </div>
+  <div class="container py-5">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 hero-content">
+        <div class="hero-badge"><i class="fas fa-award me-2"></i>{{ college.accreditation|default:"NCTE Approved Institution" }}</div>
+        <h1>Shaping Tomorrow's <span>Educators</span> Today</h1>
+        <p>{{ college.tagline|default:"Join our world-class teacher education programs and build a rewarding career in education." }}</p>
+        <div class="hero-btns">
+          <a href="{% url 'admission' %}" class="btn-hero-primary"><i class="fas fa-graduation-cap me-2"></i>Apply Now</a>
+          <a href="{% url 'courses' %}" class="btn-hero-outline"><i class="fas fa-book-open me-2"></i>Explore Courses</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="hero-stat-num count-up" data-target="500" data-suffix="+">500+</div><div class="hero-stat-label">Students</div></div>
+          <div><div class="hero-stat-num count-up" data-target="25" data-suffix="+">25+</div><div class="hero-stat-label">Faculty</div></div>
+          <div><div class="hero-stat-num count-up" data-target="98" data-suffix="%">98%</div><div class="hero-stat-label">Placement</div></div>
+          <div><div class="hero-stat-num">{{ college.established_year|default:"2005" }}</div><div class="hero-stat-label">Est.</div></div>
+        </div>
+      </div>
+
+      <!-- AUTO SWAPPING SLIDESHOW -->
+      <div class="col-lg-5 offset-lg-1 d-none d-lg-block">
+        {% if gallery %}
+        <div class="hero-slideshow" id="heroSlideshow">
+          {% for img in gallery %}
+          <div class="slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+            <img src="{{ img.image.url }}" alt="{{ img.title }}">
+            <div class="slide-overlay"></div>
+            {% if img.title or img.caption %}
+            <div class="slide-caption">
+              {% if img.category %}<span>{{ img.category.name }}</span>{% endif %}
+              <p>{{ img.title|default:img.caption }}</p>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="slide-arrows">
+            <button class="slide-arrow" id="slidePrev"><i class="fas fa-chevron-left"></i></button>
+            <button class="slide-arrow" id="slideNext"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="slide-dots" id="slideDots">
+            {% for img in gallery %}
+            <button class="slide-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
+            {% endfor %}
+          </div>
+        </div>
+        {% else %}
+        <div class="hero-icon-grid">
+          <div class="hero-icon-card"><i class="fas fa-chalkboard-teacher"></i><span>Expert Faculty</span></div>
+          <div class="hero-icon-card"><i class="fas fa-book-open"></i><span>Rich Curriculum</span></div>
+          <div class="hero-icon-card"><i class="fas fa-flask"></i><span>Modern Labs</span></div>
+          <div class="hero-icon-card"><i class="fas fa-users"></i><span>Community</span></div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<section class="stats-bar">
+  <div class="container">
+    <div class="row text-center g-4">
+      <div class="col-6 col-md-3"><div class="stat-card"><div class="num count-up" data-target="500" data-suffix="+">500+</div><div class="lbl">Total Students</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div class="num count-up" data-target="25" data-suffix="+">25+</div><div class="lbl">Faculty Members</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div class="num count-up" data-target="10" data-suffix="+">10+</div><div class="lbl">Years of Excellence</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div class="num count-up" data-target="98" data-suffix="%">98%</div><div class="lbl">Placement Rate</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- COURSES -->
+{% if courses %}
+<section class="section-pad bg-cream">
+  <div class="container">
+    <div class="section-title">
+      <div class="label">Our Programs</div>
+      <h2>Courses We Offer</h2>
+      <p>Professionally designed programs to build skilled educators</p>
+      <div class="divider"></div>
+    </div>
+    <div class="row g-4">
+      {% for course in courses %}
+      <div class="col-lg-4 col-md-6">
+        <div class="card-course">
+          <div class="card-course-img">
+            {% if course.image %}<img src="{{ course.image.url }}" alt="{{ course.title }}">
+            {% else %}<i class="fas fa-graduation-cap course-icon"></i>{% endif %}
+            <span class="course-badge">{{ course.duration }}</span>
+          </div>
+          <div class="card-course-body">
+            <h4>{{ course.short_name }} — {{ course.title }}</h4>
+            <p>{{ course.description|truncatewords:20 }}</p>
+            <div class="course-meta">
+              <span><i class="fas fa-chair"></i>{{ course.seats }} Seats</span>
+              <span><i class="fas fa-rupee-sign"></i>{{ course.fee_per_year }}/yr</span>
+            </div>
+            <a href="{% url 'course_detail' course.pk %}" class="btn-course">View Details <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-5"><a href="{% url 'courses' %}" class="btn-primary-c">View All Courses</a></div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ABOUT -->
+<section class="section-pad">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5">
+        <div style="border-radius:20px;overflow:hidden;box-shadow:var(--shadow);">
+          {% if college.about_image %}
+            <img src="{{ college.about_image.url }}" alt="About" style="width:100%;height:380px;object-fit:cover;">
+          {% else %}
+            <div style="height:380px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;">
+              <i class="fas fa-university" style="font-size:80px;color:rgba(255,255,255,0.2);"></i>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="label d-inline-block mb-3" style="background:rgba(200,148,26,0.12);color:var(--accent);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:5px 16px;border-radius:20px;">About Us</div>
+        <h2 class="mb-4" style="color:var(--primary);font-size:36px;">Welcome to<br><span style="color:var(--accent);">{{ college.college_name }}</span></h2>
+        <p style="color:var(--text-mid);font-size:16px;line-height:1.8;">{{ college.about_text|default:"We are committed to providing quality teacher education."|truncatewords:60 }}</p>
+        {% if college.vision %}
+        <div class="row mt-4 g-3">
+          <div class="col-md-6">
+            <div style="background:rgba(26,58,92,0.05);border-radius:12px;padding:16px;">
+              <i class="fas fa-eye text-accent mb-2"></i>
+              <h6 style="color:var(--primary);font-size:14px;font-weight:700;">Our Vision</h6>
+              <p style="font-size:13px;color:var(--text-mid);margin:0;">{{ college.vision|truncatewords:20 }}</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div style="background:rgba(26,58,92,0.05);border-radius:12px;padding:16px;">
+              <i class="fas fa-bullseye text-accent mb-2"></i>
+              <h6 style="color:var(--primary);font-size:14px;font-weight:700;">Our Mission</h6>
+              <p style="font-size:13px;color:var(--text-mid);margin:0;">{{ college.mission|truncatewords:20 }}</p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        <a href="{% url 'about' %}" class="btn-primary-c mt-4 d-inline-block">Learn More</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NOTICE BOARD -->
+{% if notices %}
+<section class="section-pad bg-alt">
+  <div class="container">
+    <div class="row g-5 align-items-start">
+      <div class="col-lg-8">
+        <div class="section-title text-start mb-4">
+          <div class="label">Latest Updates</div>
+          <h2>Notice Board</h2>
+          <div class="divider" style="margin:12px 0 0;"></div>
+        </div>
+        {% for notice in notices %}
+        <div class="notice-item {% if notice.is_urgent %}urgent{% endif %}">
+          <div class="notice-icon">
+            <i class="fas {% if notice.category == 'exam' %}fa-file-alt{% elif notice.category == 'event' %}fa-calendar-alt{% elif notice.category == 'result' %}fa-trophy{% elif notice.category == 'admission' %}fa-user-graduate{% elif notice.category == 'holiday' %}fa-umbrella-beach{% else %}fa-bell{% endif %}"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="notice-title">
+              {{ notice.title }}
+              {% if notice.is_urgent %}<span class="badge-urgent ms-2">URGENT</span>{% endif %}
+            </div>
+            <div class="notice-meta">
+              <span><i class="fas fa-calendar-alt me-1"></i>{{ notice.published_date|date:"d M Y" }}</span>
+              <span class="badge-cat">{{ notice.get_category_display }}</span>
+              {% if notice.attachment %}<a href="{{ notice.attachment.url }}" target="_blank" style="color:var(--accent);font-size:12px;"><i class="fas fa-paperclip me-1"></i>Attachment</a>{% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        <a href="{% url 'notices' %}" class="btn-outline-c mt-3 d-inline-block">View All Notices</a>
+      </div>
+      <div class="col-lg-4">
+        <div style="background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:20px;padding:32px;color:#fff;">
+          <h4 style="margin-bottom:16px;">Quick Links</h4>
+          <ul style="list-style:none;padding:0;margin:0;">
+            <li style="margin-bottom:12px;"><a href="{% url 'admission' %}" style="color:rgba(255,255,255,.8);font-size:14px;"><i class="fas fa-arrow-right me-2" style="color:var(--accent-light);"></i>Admission Form</a></li>
+            <li style="margin-bottom:12px;"><a href="{% url 'courses' %}" style="color:rgba(255,255,255,.8);font-size:14px;"><i class="fas fa-arrow-right me-2" style="color:var(--accent-light);"></i>Course Details</a></li>
+            <li style="margin-bottom:12px;"><a href="{% url 'faculty' %}" style="color:rgba(255,255,255,.8);font-size:14px;"><i class="fas fa-arrow-right me-2" style="color:var(--accent-light);"></i>Meet Our Faculty</a></li>
+            <li style="margin-bottom:12px;"><a href="{% url 'gallery' %}" style="color:rgba(255,255,255,.8);font-size:14px;"><i class="fas fa-arrow-right me-2" style="color:var(--accent-light);"></i>Photo Gallery</a></li>
+            <li><a href="{% url 'contact' %}" style="color:rgba(255,255,255,.8);font-size:14px;"><i class="fas fa-arrow-right me-2" style="color:var(--accent-light);"></i>Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- FACULTY -->
+{% if faculty %}
+<section class="section-pad">
+  <div class="container">
+    <div class="section-title">
+      <div class="label">Our Team</div>
+      <h2>Meet Our Faculty</h2>
+      <p>Experienced educators dedicated to nurturing tomorrow's teachers</p>
+      <div class="divider"></div>
+    </div>
+    <div class="row g-4">
+      {% for member in faculty %}
+      <div class="col-lg-3 col-md-6">
+        <div class="card-faculty">
+          {% if member.photo %}<img src="{{ member.photo.url }}" alt="{{ member.name }}" class="faculty-photo">
+          {% else %}<div class="faculty-avatar"><i class="fas fa-user-tie"></i></div>{% endif %}
+          <h5>{{ member.name }}</h5>
+          <div class="desig">{{ member.get_designation_display }}</div>
+          <div class="qual">{{ member.qualification }}</div>
+          {% if member.department %}<span class="dept">{{ member.department }}</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-5"><a href="{% url 'faculty' %}" class="btn-primary-c">View All Faculty</a></div>
+  </div>
+</section>
+{% endif %}
+
+<!-- GALLERY -->
+{% if gallery %}
+<section class="section-pad bg-cream">
+  <div class="container">
+    <div class="section-title">
+      <div class="label">Campus Life</div>
+      <h2>Photo Gallery</h2>
+      <p>Glimpses of life at {{ college.college_name }}</p>
+      <div class="divider"></div>
+    </div>
+    <div class="gallery-grid">
+      {% for img in gallery %}
+      <div class="gallery-item">
+        <img src="{{ img.image.url }}" alt="{{ img.title }}">
+        <div class="gallery-overlay"><span>{{ img.title|default:img.caption }}</span></div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-5"><a href="{% url 'gallery' %}" class="btn-primary-c">View Full Gallery</a></div>
+  </div>
+</section>
+{% endif %}
+
+<!-- FOUNDERS -->
+{% if founders %}
+<section class="section-pad">
+  <div class="container">
+    <div class="section-title">
+      <div class="label">Leadership</div>
+      <h2>Message from Our Leaders</h2>
+      <p>Guidance and vision from our founding members</p>
+      <div class="divider"></div>
+    </div>
+    <div class="row g-4 justify-content-center">
+      {% for founder in founders %}
+      <div class="col-lg-4 col-md-6">
+        <div class="card-founder">
+          <div class="founder-header">
+            {% if founder.photo %}<img src="{{ founder.photo.url }}" alt="{{ founder.name }}" class="founder-photo">
+            {% else %}<div class="founder-avatar"><i class="fas fa-user-tie"></i></div>{% endif %}
+            <h4>{{ founder.name }}</h4>
+            <span class="founder-role">{{ founder.get_role_display }}</span>
+          </div>
+          <div class="founder-body"><p>{{ founder.message|truncatewords:40 }}</p></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-5"><a href="{% url 'founders' %}" class="btn-outline-c">Read Full Messages</a></div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<section style="background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:80px 0;text-align:center;">
+  <div class="container">
+    <h2 style="color:#fff;font-size:38px;margin-bottom:16px;">Ready to Begin Your Journey?</h2>
+    <p style="color:rgba(255,255,255,.75);font-size:17px;max-width:500px;margin:0 auto 36px;">Applications are open. Take the first step towards a rewarding career in education.</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a href="{% url 'admission' %}" class="btn-hero-primary">Apply for Admission</a>
+      <a href="{% url 'contact' %}" class="btn-hero-outline">Get in Touch</a>
+    </div>
+  </div>
+</section>
+
+<!-- FLOATING NOTICE BELL -->
+{% if notices %}
+<a href="{% url 'notices' %}" class="notice-alert-btn" title="View Notices">
+  <i class="fas fa-bell"></i>
+  <span class="notice-badge">{{ notices|length }}</span>
+</a>
+{% endif %}
+
+<!-- EVENT/URGENT POPUP -->
+{% with urgent_notices=notices %}
+{% for notice in urgent_notices %}
+{% if notice.is_urgent and forloop.first %}
+<div class="event-popup-backdrop" id="eventPopup">
+  <div class="event-popup">
+    <div class="event-popup-header">
+      <h5><i class="fas fa-exclamation-circle"></i> Important Notices</h5>
+      <button class="popup-close" onclick="closePopup()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="event-popup-body">
+      {% for notice in urgent_notices %}
+      {% if notice.is_urgent %}
+      <div class="event-item">
+        <div class="event-icon urgent"><i class="fas fa-bell"></i></div>
+        <div>
+          <div class="event-title">{{ notice.title }}</div>
+          <div class="event-meta"><i class="fas fa-calendar-alt me-1"></i>{{ notice.published_date|date:"d M Y" }} &nbsp;·&nbsp; <span style="text-transform:capitalize;">{{ notice.get_category_display }}</span></div>
+          <div class="event-content">{{ notice.content|truncatewords:20 }}</div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% for notice in urgent_notices %}
+      {% if notice.category == 'event' and not notice.is_urgent %}
+      <div class="event-item">
+        <div class="event-icon event"><i class="fas fa-calendar-star"></i></div>
+        <div>
+          <div class="event-title">{{ notice.title }}</div>
+          <div class="event-meta"><i class="fas fa-calendar-alt me-1"></i>{{ notice.published_date|date:"d M Y" }}</div>
+          <div class="event-content">{{ notice.content|truncatewords:20 }}</div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="event-popup-footer">
+      <button class="btn-popup-dismiss" onclick="closePopup()">Dismiss</button>
+      <a href="{% url 'notices' %}" class="btn-popup-view" onclick="closePopup()">View All Notices</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endwith %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Slideshow ──────────────────────────────────────────────────────────────
+const slides = document.querySelectorAll('.slide');
+const dots   = document.querySelectorAll('.slide-dot');
+let current  = 0;
+let timer;
+
+function goToSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current]?.classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  dots[current]?.classList.add('active');
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => goToSlide(current + 1), 3500);
+}
+
+if (slides.length > 1) {
+  startTimer();
+  document.getElementById('slideNext')?.addEventListener('click', () => { goToSlide(current + 1); startTimer(); });
+  document.getElementById('slidePrev')?.addEventListener('click', () => { goToSlide(current - 1); startTimer(); });
+  dots.forEach(dot => dot.addEventListener('click', () => { goToSlide(+dot.dataset.index); startTimer(); }));
+  document.getElementById('heroSlideshow')?.addEventListener('mouseenter', () => clearInterval(timer));
+  document.getElementById('heroSlideshow')?.addEventListener('mouseleave', startTimer);
+}
+
+// ── Event Popup ────────────────────────────────────────────────────────────
+function closePopup() {
+  const popup = document.getElementById('eventPopup');
+  if (popup) {
+    popup.style.opacity = '0';
+    popup.style.transition = 'opacity .3s';
+    setTimeout(() => popup.remove(), 300);
+  }
+}
+
+// Show popup after 2 seconds, close on backdrop click
+window.addEventListener('load', () => {
+  const popup = document.getElementById('eventPopup');
+  if (popup) {
+    popup.style.display = 'none';
+    setTimeout(() => { popup.style.display = 'flex'; }, 2000);
+    popup.addEventListener('click', (e) => { if (e.target === popup) closePopup(); });
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.short_name }} — {{ college.college_name }}{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <h1>{{ course.short_name }}</h1>
+    <p>{{ course.title }}</p>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb justify-content-center mt-2">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'courses' %}">Courses</a></li>
+      <li class="breadcrumb-item active">{{ course.short_name }}</li>
+    </ol></nav>
+  </div>
+</div>
+<section class="section-pad">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-8">
+        <div style="background:#fff;border-radius:20px;padding:40px;box-shadow:var(--shadow);">
+          {% if course.image %}<img src="{{ course.image.url }}" alt="{{ course.title }}" style="width:100%;border-radius:12px;margin-bottom:28px;max-height:320px;object-fit:cover;">{% endif %}
+          <h2 style="color:var(--primary);margin-bottom:16px;">{{ course.title }}</h2>
+          <p style="color:var(--text-mid);font-size:16px;line-height:1.9;">{{ course.description }}</p>
+          {% if course.get_highlights_list %}
+          <h4 style="color:var(--primary);margin:28px 0 16px;">Course Highlights</h4>
+          <ul style="list-style:none;padding:0;">
+            {% for h in course.get_highlights_list %}
+            <li style="padding:10px 0;border-bottom:1px solid var(--border);color:var(--text-mid);font-size:15px;display:flex;align-items:center;gap:10px;">
+              <i class="fas fa-check-circle" style="color:var(--success);"></i>{{ h }}
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          <h4 style="color:var(--primary);margin:28px 0 12px;">Eligibility</h4>
+          <p style="color:var(--text-mid);font-size:15px;line-height:1.8;">{{ course.eligibility }}</p>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div style="background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:20px;padding:32px;color:#fff;position:sticky;top:90px;">
+          <h4 style="margin-bottom:24px;">Course Overview</h4>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:12px;">
+              <span style="color:rgba(255,255,255,.7);font-size:14px;"><i class="fas fa-clock me-2"></i>Duration</span>
+              <span style="font-weight:600;">{{ course.duration }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:12px;">
+              <span style="color:rgba(255,255,255,.7);font-size:14px;"><i class="fas fa-chair me-2"></i>Total Seats</span>
+              <span style="font-weight:600;">{{ course.seats }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:12px;">
+              <span style="color:rgba(255,255,255,.7);font-size:14px;"><i class="fas fa-rupee-sign me-2"></i>Fee / Year</span>
+              <span style="font-weight:600;">₹{{ course.fee_per_year }}</span>
+            </div>
+          </div>
+          <a href="{% url 'admission' %}" style="display:block;margin-top:28px;background:var(--accent);color:#fff;text-align:center;padding:14px;border-radius:25px;font-weight:600;font-size:15px;">Apply Now</a>
+          <a href="{% url 'contact' %}" style="display:block;margin-top:12px;background:rgba(255,255,255,0.1);color:#fff;text-align:center;padding:12px;border-radius:25px;font-size:14px;">Enquire</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

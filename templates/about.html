@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}About — {{ college.college_name }}{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <h1>About Us</h1>
+    <p>Learn about our history, mission, and values</p>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb justify-content-center mt-2">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active">About</li>
+    </ol></nav>
+  </div>
+</div>
+
+<section class="section-pad">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5">
+        {% if college.about_image %}
+          <img src="{{ college.about_image.url }}" alt="About" style="width:100%;border-radius:20px;box-shadow:var(--shadow);">
+        {% else %}
+          <div style="height:420px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:20px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-university" style="font-size:80px;color:rgba(255,255,255,0.2);"></i>
+          </div>
+        {% endif %}
+      </div>
+      <div class="col-lg-7">
+        <div class="label d-inline-block mb-3" style="background:rgba(200,148,26,0.12);color:var(--accent);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:5px 16px;border-radius:20px;">Who We Are</div>
+        <h2 style="color:var(--primary);font-size:36px;margin-bottom:20px;">{{ college.college_name }}</h2>
+        {% if college.affiliation %}<p style="color:var(--accent);font-weight:600;margin-bottom:16px;">{{ college.affiliation }}</p>{% endif %}
+        <p style="color:var(--text-mid);font-size:16px;line-height:1.9;">{{ college.about_text|default:"We are a premier institution committed to excellence in teacher education. Our programs are designed to produce highly skilled, reflective, and innovative educators who are prepared to meet the challenges of modern classrooms and contribute meaningfully to society." }}</p>
+        <div class="row mt-4 g-3">
+          {% if college.established_year %}<div class="col-6"><div style="text-align:center;padding:20px;background:rgba(26,58,92,0.05);border-radius:12px;"><div style="font-size:32px;font-weight:700;color:var(--accent);font-family:'Playfair Display',serif;">{{ college.established_year }}</div><div style="font-size:13px;color:var(--text-mid);">Established</div></div></div>{% endif %}
+          {% if college.accreditation %}<div class="col-6"><div style="text-align:center;padding:20px;background:rgba(26,58,92,0.05);border-radius:12px;"><div style="font-size:14px;font-weight:700;color:var(--primary);">{{ college.accreditation }}</div><div style="font-size:13px;color:var(--text-mid);">Accreditation</div></div></div>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if college.vision or college.mission %}
+<section class="section-pad bg-cream">
+  <div class="container">
+    <div class="section-title">
+      <div class="label">Our Foundation</div>
+      <h2>Vision & Mission</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="row g-4 justify-content-center">
+      {% if college.vision %}
+      <div class="col-lg-5">
+        <div style="background:#fff;border-radius:20px;padding:40px;box-shadow:var(--shadow);height:100%;border-top:4px solid var(--primary);">
+          <div style="width:56px;height:56px;background:rgba(26,58,92,0.08);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+            <i class="fas fa-eye" style="font-size:22px;color:var(--primary);"></i>
+          </div>
+          <h3 style="color:var(--primary);margin-bottom:16px;">Our Vision</h3>
+          <p style="color:var(--text-mid);line-height:1.8;">{{ college.vision }}</p>
+        </div>
+      </div>
+      {% endif %}
+      {% if college.mission %}
+      <div class="col-lg-5">
+        <div style="background:#fff;border-radius:20px;padding:40px;box-shadow:var(--shadow);height:100%;border-top:4px solid var(--accent);">
+          <div style="width:56px;height:56px;background:rgba(200,148,26,0.1);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+            <i class="fas fa-bullseye" style="font-size:22px;color:var(--accent);"></i>
+          </div>
+          <h3 style="color:var(--primary);margin-bottom:16px;">Our Mission</h3>
+          <p style="color:var(--text-mid);line-height:1.8;">{{ college.mission }}</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

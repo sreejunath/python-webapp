@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Message Sent — {{ college.college_name }}{% endblock %}
+{% block content %}
+<section style="background:var(--cream);min-height:70vh;display:flex;align-items:center;">
+  <div class="container">
+    <div class="success-card">
+      <div class="success-icon"><i class="fas fa-envelope-open"></i></div>
+      <h2>Message Sent!</h2>
+      <p>Thank you for reaching out to <strong>{{ college.college_name }}</strong>. We've received your message and will get back to you within 24 hours.</p>
+      <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
+        <a href="{% url 'home' %}" class="btn-primary-c">Back to Home</a>
+        <a href="{% url 'admission' %}" class="btn-outline-c">Apply for Admission</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

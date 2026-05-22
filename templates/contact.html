@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Contact — {{ college.college_name }}{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p>We'd love to hear from you</p>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb justify-content-center mt-2">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active">Contact</li>
+    </ol></nav>
+  </div>
+</div>
+<section class="section-pad bg-cream">
+  <div class="container">
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-4">
+        <div class="contact-info-card">
+          <h3>Get in Touch</h3>
+          <p>Have questions? Reach out to us and we'll get back to you as soon as possible.</p>
+          {% if college.address %}
+          <div class="contact-item">
+            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div><h6>Address</h6><p>{{ college.address }}</p></div>
+          </div>
+          {% endif %}
+          {% if college.phone %}
+          <div class="contact-item">
+            <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+            <div><h6>Phone</h6><p>{{ college.phone }}</p></div>
+          </div>
+          {% endif %}
+          {% if college.email %}
+          <div class="contact-item">
+            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+            <div><h6>Email</h6><p>{{ college.email }}</p></div>
+          </div>
+          {% endif %}
+          <div style="margin-top:28px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.15);">
+            <p style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:12px;">Follow Us</p>
+            <div style="display:flex;gap:10px;">
+              {% if college.facebook %}<a href="{{ college.facebook }}" target="_blank" style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:#fff;"><i class="fab fa-facebook-f"></i></a>{% endif %}
+              {% if college.instagram %}<a href="{{ college.instagram }}" target="_blank" style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:#fff;"><i class="fab fa-instagram"></i></a>{% endif %}
+              {% if college.youtube %}<a href="{{ college.youtube }}" target="_blank" style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:#fff;"><i class="fab fa-youtube"></i></a>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="form-card">
+          <h3 style="color:var(--primary);margin-bottom:8px;">Send a Message</h3>
+          <p style="color:var(--text-mid);font-size:14px;margin-bottom:28px;">Fill in the form below and we'll respond within 24 hours.</p>
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6 form-group">
+                <label>Your Name <span style="color:red;">*</span></label>
+                {{ form.name }}
+                {% if form.name.errors %}<ul class="errorlist">{% for e in form.name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Email Address <span style="color:red;">*</span></label>
+                {{ form.email }}
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Phone Number</label>
+                {{ form.phone }}
+              </div>
+              <div class="col-md-6 form-group">
+                <label>Subject <span style="color:red;">*</span></label>
+                {{ form.subject }}
+              </div>
+              <div class="col-12 form-group">
+                <label>Message <span style="color:red;">*</span></label>
+                {{ form.message }}
+              </div>
+            </div>
+            <button type="submit" class="btn-submit mt-3"><i class="fas fa-paper-plane me-2"></i>Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

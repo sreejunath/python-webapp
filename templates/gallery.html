@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Gallery — {{ college.college_name }}{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <h1>Photo Gallery</h1>
+    <p>Glimpses of campus life and events</p>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb justify-content-center mt-2">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active">Gallery</li>
+    </ol></nav>
+  </div>
+</div>
+<section class="section-pad bg-cream">
+  <div class="container">
+    {% if categories %}
+    <div class="text-center mb-5">
+      <a href="{% url 'gallery' %}" class="btn {% if not active_cat %}btn-primary-c{% else %}btn-outline-c{% endif %} me-2 mb-2">All</a>
+      {% for cat in categories %}
+      <a href="?cat={{ cat.id }}" class="btn {% if active_cat == cat.id|stringformat:'s' %}btn-primary-c{% else %}btn-outline-c{% endif %} me-2 mb-2">{{ cat.name }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if images %}
+    <div class="gallery-grid">
+      {% for img in images %}
+      <div class="gallery-item">
+        <img src="{{ img.image.url }}" alt="{{ img.title }}">
+        <div class="gallery-overlay"><span>{{ img.title|default:img.caption }}</span></div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5"><i class="fas fa-images" style="font-size:48px;color:var(--border);"></i><p class="mt-3 text-muted">Gallery images coming soon.</p></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
